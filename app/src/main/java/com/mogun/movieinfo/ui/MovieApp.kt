@@ -18,9 +18,9 @@ import androidx.navigation.compose.rememberNavController
 import com.mogun.movieinfo.core.ui.compose.LocalSnackbarHostState
 import com.mogun.movieinfo.core.ui.compose.MovieAppProvider
 import com.mogun.movieinfo.ui.navigation.NavigationItem
-import com.mogun.movieinfo.ui.screen.HomeScreen
 import com.mogun.movieinfo.ui.screen.SearchScreen
 import com.mogun.movieinfo.ui.screen.WatchScreen
+import com.mogun.movieinfo.ui.screen.home.HomeScreen
 import com.mogun.movieinfo.ui.theme.MovieInfoTheme
 
 @Composable
