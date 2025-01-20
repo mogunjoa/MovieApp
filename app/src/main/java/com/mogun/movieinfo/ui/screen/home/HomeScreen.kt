@@ -57,11 +57,27 @@ fun HomeScreen() {
             .verticalScroll(rememberScrollState()) // 스크롤 상태 추가
     ) {
         Spacer(modifier = Modifier.height(large.dp))
-        PolularMovieSection()
+        Section(
+            title = "인기 영화 Top 10",
+            cardHeight = 200,
+            fontSize = 18,
+        ) {
+            RankingNumber(it + 1)
+        }
         Spacer(modifier = Modifier.height(large.dp))
-        NowPlayingSection()
+        Section(
+            title = "현재 상영작",
+            cardHeight = 150,
+            fontSize = 14,
+        ) {
+            RankingNumber(it + 1)
+        }
         Spacer(modifier = Modifier.height(large.dp))
-        GenrensSection()
+        Section(
+            title = "장르별 영화",
+            cardHeight = 150,
+            fontSize = 14,
+        )
         Spacer(modifier = Modifier.height(large.dp))
     }
 }
@@ -91,31 +107,16 @@ fun MovieSection(
 }
 
 @Composable
-fun PolularMovieSection() {
-    MovieSection("인기 영화 Top 10") { index ->
-        MovieCard(200, 18) {
-            RankingNumber(index + 1)
+fun Section(
+    title: String,
+    cardHeight: Int,
+    fontSize: Int,
+    compose: @Composable (index: Int) -> Unit = {}
+) {
+    MovieSection(title) { index ->
+        MovieCard(cardHeight, fontSize) {
+            compose(index)
         }
-    }
-}
-
-@Composable
-fun NowPlayingSection() {
-    MovieSection("현재 상영작") {
-        MovieCard(
-            height = 150,
-            contentFontSize = 14
-        )
-    }
-}
-
-@Composable
-fun GenrensSection() {
-    MovieSection("장르별 영화") {
-        MovieCard(
-            height = 150,
-            contentFontSize = 14
-        )
     }
 }
 
