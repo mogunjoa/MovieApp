@@ -1,4 +1,4 @@
-package com.mogun.movieinfo.ui
+package com.mogun.movieinfo.presentation.ui
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -7,7 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import com.mogun.movieinfo.ui.navigation.NavigationItem
+import com.mogun.movieinfo.presentation.ui.navigation.NavigationItem
 
 @Composable
 fun MovieAppBottomBar(navHostController: NavHostController, currentRoute: String?) {

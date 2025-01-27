@@ -1,4 +1,4 @@
-package com.mogun.movieinfo.ui.navigation
+package com.mogun.movieinfo.presentation.ui.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite

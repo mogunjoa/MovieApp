@@ -1,4 +1,4 @@
-package com.mogun.movieinfo.ui.screen.home
+package com.mogun.movieinfo.presentation.ui.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,7 +18,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -32,17 +30,17 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.mogun.movieinfo.R
-import com.mogun.movieinfo.ui.MovieApp
-import com.mogun.movieinfo.ui.common.ContentPaddings.large
-import com.mogun.movieinfo.ui.common.ContentPaddings.medium
-import com.mogun.movieinfo.ui.common.ContentPaddings.small
-import com.mogun.movieinfo.ui.common.ContentPaddings.tiny
-import com.mogun.movieinfo.ui.theme.Yellow
+import com.mogun.movieinfo.presentation.ui.MovieApp
+import com.mogun.movieinfo.presentation.ui.common.ContentPaddings
+import com.mogun.movieinfo.presentation.ui.theme.Yellow
+import com.mogun.movieinfo.presentation.viewmodel.MovieViewModel
+import com.mogun.movieinfo.presentation.viewmodel.UiState
+import kotlinx.coroutines.flow.onEach
 
 enum class CardType {
     DEFAULT,
@@ -50,13 +48,16 @@ enum class CardType {
 }
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    viewModel: MovieViewModel = hiltViewModel()
+) {
+    viewModel.getPopularMovies()
     Column(
         modifier = Modifier
             .fillMaxSize() // 화면 전체를 채움
             .verticalScroll(rememberScrollState()) // 스크롤 상태 추가
     ) {
-        Spacer(modifier = Modifier.height(large.dp))
+        Spacer(modifier = Modifier.Companion.height(ContentPaddings.large.dp))
         Section(
             title = "인기 영화 Top 10",
             cardHeight = 200,
@@ -64,7 +65,7 @@ fun HomeScreen() {
         ) {
             RankingNumber(it + 1)
         }
-        Spacer(modifier = Modifier.height(large.dp))
+        Spacer(modifier = Modifier.Companion.height(ContentPaddings.large.dp))
         Section(
             title = "현재 상영작",
             cardHeight = 150,
@@ -72,13 +73,13 @@ fun HomeScreen() {
         ) {
             RankingNumber(it + 1)
         }
-        Spacer(modifier = Modifier.height(large.dp))
+        Spacer(modifier = Modifier.Companion.height(ContentPaddings.large.dp))
         Section(
             title = "장르별 영화",
             cardHeight = 150,
             fontSize = 14,
         )
-        Spacer(modifier = Modifier.height(large.dp))
+        Spacer(modifier = Modifier.Companion.height(ContentPaddings.large.dp))
     }
 }
 
@@ -91,13 +92,13 @@ fun MovieSection(
         Text(
             text = sectionTitle,
             style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(start = medium.dp)
+            modifier = Modifier.padding(start = ContentPaddings.medium.dp)
         )
 
         LazyRow(
-            modifier = Modifier.fillMaxWidth().padding(top = medium.dp),
-            horizontalArrangement = Arrangement.spacedBy(medium.dp), // 아이템 간 간격
-            contentPadding = PaddingValues(horizontal = medium.dp) // 처음과 끝 여백
+            modifier = Modifier.fillMaxWidth().padding(top = ContentPaddings.medium.dp),
+            horizontalArrangement = Arrangement.spacedBy(ContentPaddings.medium.dp), // 아이템 간 간격
+            contentPadding = PaddingValues(horizontal = ContentPaddings.medium.dp) // 처음과 끝 여백
         ) {
             items(10) { item ->
                 compose(item)
@@ -149,7 +150,7 @@ fun MovieCard(
             // RankingNumber 컴포저 호출
             compose()
         }
-        Spacer(modifier = Modifier.height(small.dp))
+        Spacer(modifier = Modifier.Companion.height(ContentPaddings.small.dp))
         Text(
             "영화 제목",
             fontSize = contentFontSize.sp,
@@ -160,7 +161,7 @@ fun MovieCard(
                 )
             ),
         )
-        Spacer(modifier = Modifier.width(tiny.dp))
+        Spacer(modifier = Modifier.Companion.width(ContentPaddings.tiny.dp))
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -170,7 +171,7 @@ fun MovieCard(
                 modifier = Modifier.size(contentFontSize.dp),
                 tint = Yellow
             )
-            Spacer(modifier = Modifier.width(tiny.dp))
+            Spacer(modifier = Modifier.Companion.width(ContentPaddings.tiny.dp))
             Text(
                 "9.0 (2,303)",
                 fontSize = (contentFontSize / 1.2).sp,
@@ -198,7 +199,7 @@ fun RankingNumber(ranking: Int) {
                 blurRadius = 8f // 테두리 두께
             )
         ),
-        modifier = Modifier.padding(small.dp) // 텍스트에 여백 추가
+        modifier = Modifier.Companion.padding(ContentPaddings.small.dp) // 텍스트에 여백 추가
     )
 }
 

@@ -1,4 +1,4 @@
-package com.mogun.movieinfo.ui.common
+package com.mogun.movieinfo.presentation.ui.common
 
 object ContentPaddings {
     const val tiny = 4

@@ -1,4 +1,4 @@
-package com.mogun.movieinfo.ui.theme
+package com.mogun.movieinfo.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

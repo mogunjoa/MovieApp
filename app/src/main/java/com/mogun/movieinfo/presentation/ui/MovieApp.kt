@@ -1,4 +1,4 @@
-package com.mogun.movieinfo.ui
+package com.mogun.movieinfo.presentation.ui
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -17,11 +17,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.mogun.movieinfo.core.ui.compose.LocalSnackbarHostState
 import com.mogun.movieinfo.core.ui.compose.MovieAppProvider
-import com.mogun.movieinfo.ui.navigation.NavigationItem
-import com.mogun.movieinfo.ui.screen.SearchScreen
-import com.mogun.movieinfo.ui.screen.WatchScreen
-import com.mogun.movieinfo.ui.screen.home.HomeScreen
-import com.mogun.movieinfo.ui.theme.MovieInfoTheme
+import com.mogun.movieinfo.presentation.ui.navigation.NavigationItem
+import com.mogun.movieinfo.presentation.ui.screen.SearchScreen
+import com.mogun.movieinfo.presentation.ui.screen.WatchScreen
+import com.mogun.movieinfo.presentation.ui.screen.HomeScreen
+import com.mogun.movieinfo.presentation.ui.theme.MovieInfoTheme
 
 @Composable
 fun MovieApp(
