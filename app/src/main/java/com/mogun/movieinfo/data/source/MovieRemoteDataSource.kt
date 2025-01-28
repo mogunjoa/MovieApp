@@ -1,7 +1,8 @@
 package com.mogun.movieinfo.data.source
 
-import com.mogun.movieinfo.data.model.PopularMovieEntity
+import com.mogun.movieinfo.data.model.MovieEntity
 
 interface MovieRemoteDataSource {
-    suspend fun getPopluarMovies(): List<PopularMovieEntity>
+    suspend fun getPopularMovies(): List<MovieEntity>
+    suspend fun getNowPlayingMovies(): List<MovieEntity>
 }

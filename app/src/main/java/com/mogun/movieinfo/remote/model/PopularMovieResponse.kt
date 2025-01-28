@@ -1,7 +1,7 @@
 package com.mogun.movieinfo.remote.model
 
 import com.google.gson.annotations.SerializedName
-import com.mogun.movieinfo.data.model.PopularMovieEntity
+import com.mogun.movieinfo.data.model.MovieEntity
 import com.mogun.movieinfo.remote.network.Constants
 import java.util.Date
 
@@ -24,8 +24,8 @@ data class PopularMovieResponse(
     val prefixPosterUrl: String
         get() = Constants.POSTER_IMAGE_PREFIX_URL + posterPath
 
-    fun toData(): PopularMovieEntity {
-        return PopularMovieEntity(
+    fun toData(): MovieEntity {
+        return MovieEntity(
             id = id.toString(),
             title = title,
             overview = overview,

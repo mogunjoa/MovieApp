@@ -1,6 +1,6 @@
 package com.mogun.movieinfo.domain.model
 
-data class PopularMovie(
+data class Movie(
     val id: String,
     val title: String,
     val overview: String,

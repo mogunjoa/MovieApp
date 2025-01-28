@@ -1,8 +1,8 @@
 package com.mogun.movieinfo.presentation.model
 
-import com.mogun.movieinfo.domain.model.PopularMovie
+import com.mogun.movieinfo.domain.model.Movie
 
-data class PopularMovieUiState(
+data class MovieUiState(
     val id: String,
     val title: String,
     val overview: String,
@@ -12,8 +12,8 @@ data class PopularMovieUiState(
     val releasedAt: String,
 )
 
-fun PopularMovie.toUiState(): PopularMovieUiState {
-    return PopularMovieUiState(
+fun Movie.toUiState(): MovieUiState {
+    return MovieUiState(
         id = id,
         title = title,
         overview = overview,

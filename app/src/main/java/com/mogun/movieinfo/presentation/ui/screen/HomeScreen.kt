@@ -35,6 +35,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,12 +45,13 @@ import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.mogun.movieinfo.R
-import com.mogun.movieinfo.presentation.model.PopularMovieUiState
+import com.mogun.movieinfo.presentation.model.MovieUiState
 import com.mogun.movieinfo.presentation.ui.MovieApp
 import com.mogun.movieinfo.presentation.ui.common.ContentPaddings
 import com.mogun.movieinfo.presentation.ui.theme.Yellow
 import com.mogun.movieinfo.presentation.viewmodel.MovieViewModel
 import com.mogun.movieinfo.presentation.viewmodel.UiState
+import kotlinx.coroutines.async
 
 enum class CardType {
     DEFAULT,
@@ -61,11 +63,26 @@ fun HomeScreen(
     viewModel: MovieViewModel = hiltViewModel(),
 ) {
     val popularMovies = viewModel.popularMovies.collectAsState()
+    val nowPlayingMovies = viewModel.nowPlayingMovies.collectAsState()
 
-    LaunchedEffect(popularMovies) {
-        if (popularMovies.value is UiState.Idle) {
-            viewModel.getPopularMovies()
+    /**
+     * popularMovies와 nowPlayingMovies가 초기 상태인 경우에만 API 호출
+     * API 호출은 비동기로 진행되며, 두 API 호출이 병렬로 진행됨(TODO 추후 예외 전파 고려)
+     */
+    LaunchedEffect(Unit) {
+        val popularMovieJob = async {
+            if (popularMovies.value is UiState.Idle) {
+                viewModel.getPopularMovies()
+            }
         }
+        val nowPlayingMovieJob = async {
+            if (nowPlayingMovies.value is UiState.Idle) {
+                viewModel.getNowPlayingMovies()
+            }
+        }
+
+        popularMovieJob.await()
+        nowPlayingMovieJob.await()
     }
 
     Column(
@@ -77,11 +94,12 @@ fun HomeScreen(
         Section(
             sectionTitle = "인기 영화 Top 10",
             cardType = CardType.RANKING,
-            movieData = (popularMovies.value as? UiState.Success)?.data ?: emptyList(),
+            movieData = (popularMovies.value as? UiState.Success)?.data?.take(10) ?: emptyList(),
         )
         Spacer(modifier = Modifier.Companion.height(ContentPaddings.large.dp))
         Section(
             sectionTitle = "현재 상영작",
+            movieData = (nowPlayingMovies.value as? UiState.Success)?.data ?: emptyList(),
         )
         Spacer(modifier = Modifier.Companion.height(ContentPaddings.large.dp))
         Section(
@@ -94,7 +112,7 @@ fun HomeScreen(
 @Composable
 fun Section(
     sectionTitle: String,
-    movieData: List<PopularMovieUiState> = emptyList(),
+    movieData: List<MovieUiState> = emptyList(),
     cardType: CardType = CardType.DEFAULT,
 ) {
     Column {
@@ -106,7 +124,7 @@ fun Section(
 
         val placeholderMovies = remember {
             List(10) {
-                PopularMovieUiState(
+                MovieUiState(
                     id = "",
                     title = "Loading...",
                     overview = "",
@@ -126,9 +144,8 @@ fun Section(
             contentPadding = PaddingValues(horizontal = ContentPaddings.medium.dp)
         ) {
             val moviesToShow = if (movieData.isEmpty()) placeholderMovies else movieData
-            val itemsCount = if (movieData.size > 10 && cardType == CardType.RANKING) 10 else movieData.size
 
-            items(itemsCount) { index ->
+            items(movieData.size) { index ->
                 MovieCard(
                     height = 200,
                     contentFontSize = 18,
@@ -146,7 +163,7 @@ fun Section(
 fun MovieCard(
     height: Int,
     contentFontSize: Int,
-    data: PopularMovieUiState,
+    data: MovieUiState,
     compose: @Composable () -> Unit = {},
 ) {
     Column {
@@ -189,13 +206,16 @@ fun MovieCard(
         Spacer(modifier = Modifier.Companion.height(ContentPaddings.small.dp))
         Text(
             data.title,
+            modifier = Modifier.fillMaxWidth(),
             fontSize = contentFontSize.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             style = TextStyle(
                 shadow = Shadow(
                     color = Color.Black, // 테두리 색상
                     offset = Offset(0f, 0f), // 그림자 위치
                 )
-            ),
+            )
         )
         Spacer(modifier = Modifier.Companion.width(ContentPaddings.tiny.dp))
         Row(
