@@ -173,31 +173,29 @@ fun MovieCard(
                 .aspectRatio(2f / 3), // 세로 비율 설정
             contentAlignment = Alignment.BottomStart // 내용물의 기본 정렬을 왼쪽 하단으로 설정
         ) {
-            Column {
-                Card(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    if (data.posterPath.isEmpty())
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Gray),
-                        )
-                    else
-                        Image(
-                            painter = rememberAsyncImagePainter(
-                                model = ImageRequest.Builder(LocalContext.current)
-                                    .data(data.posterPath)
-                                    .crossfade(true) // 부드러운 전환 효과
-                                    .memoryCachePolicy(CachePolicy.ENABLED) // 메모리 캐싱
-                                    .diskCachePolicy(CachePolicy.DISABLED)  // 디스크 캐싱
-                                    .build()
-                            ),
-                            contentDescription = "Movie Poster",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                }
+            Card(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                if (data.posterPath.isEmpty())
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Gray),
+                    )
+                else
+                    Image(
+                        painter = rememberAsyncImagePainter(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(data.posterPath)
+                                .crossfade(true) // 부드러운 전환 효과
+                                .memoryCachePolicy(CachePolicy.ENABLED) // 메모리 캐싱
+                                .diskCachePolicy(CachePolicy.DISABLED)  // 디스크 캐싱
+                                .build()
+                        ),
+                        contentDescription = "Movie Poster",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
             }
 
             // RankingNumber 컴포저 호출
@@ -206,7 +204,7 @@ fun MovieCard(
         Spacer(modifier = Modifier.Companion.height(ContentPaddings.small.dp))
         Text(
             data.title,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.width((height * 2f / 3).dp),
             fontSize = contentFontSize.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
