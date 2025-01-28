@@ -1,23 +1,27 @@
 package com.mogun.movieinfo.remote.impl
 
-import com.mogun.movieinfo.data.model.PopularMovieEntity
+import com.mogun.movieinfo.data.model.MovieEntity
 import com.mogun.movieinfo.data.source.MovieRemoteDataSource
+import com.mogun.movieinfo.remote.api.ApiHelper
 import com.mogun.movieinfo.remote.api.ApiService
 import javax.inject.Inject
 
 class MovieRemoteDataSourceImpl @Inject constructor(
     private val apiService: ApiService,
+    private val apiHelper: ApiHelper,
 ) : MovieRemoteDataSource {
-    override suspend fun getPopluarMovies(): List<PopularMovieEntity> {
-        val response = apiService.getPopluarMovies(language = "ko", page = 1)
 
-        if (response.isSuccessful) {
-            return response.body()?.results?.map {
-                it.toData()
-            } ?: emptyList()
-        } else {
-            val message = response.errorBody()?.string() ?: "unknown error"
-            throw Exception(message)
-        }
+    override suspend fun getPopularMovies(): List<MovieEntity> {
+        return apiHelper.safeApiCall(
+            apiCall = { apiService.getPopularMovies(language = "ko", page = 1) },
+            mapToData = { body -> body.results.map { it.toData() } }
+        )
+    }
+
+    override suspend fun getNowPlayingMovies(): List<MovieEntity> {
+        return apiHelper.safeApiCall(
+            apiCall = { apiService.getNowPlayingMovies(language = "ko", page = 1) },
+            mapToData = { body -> body.results.map { it.toData() } }
+        )
     }
 }
