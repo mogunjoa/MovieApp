@@ -31,13 +31,13 @@ class MovieViewModel @Inject constructor(
     fun getPopularMovies() {
         movieUseCase.getPopularMovies()
             .onStart {
-                _popularMovies = MutableStateFlow(UiState.Loading)
+                _popularMovies.value = UiState.Loading
             }
             .onEach {
-                _popularMovies = MutableStateFlow(UiState.Success(it.map { movie -> movie.toUiState() }))
+                _popularMovies.value = UiState.Success(it.map { movie -> movie.toUiState() })
             }
             .catch {
-                _popularMovies = MutableStateFlow(UiState.Error(it.message ?: "An error occurred"))
+                _popularMovies.value = UiState.Error(it.message ?: "An error occurred")
             }
             .launchIn(viewModelScope)
     }

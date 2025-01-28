@@ -2,7 +2,7 @@ package com.mogun.movieinfo.remote.di
 
 import android.content.Context
 import com.mogun.movieinfo.R
-import com.mogun.movieinfo.remote.qualifier.BaseUrl
+import com.mogun.movieinfo.remote.network.Constants
 import com.mogun.movieinfo.remote.qualifier.Token
 import dagger.Module
 import dagger.Provides
@@ -20,13 +20,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetwokrModule {
-
-    @Singleton
-    @BaseUrl
-    @Provides
-    fun provideBaseUrl(): String {
-        return "https://api.themoviedb.org/3/"
-    }
 
     @Singleton
     @Provides
@@ -47,10 +40,9 @@ object NetwokrModule {
     @Provides
     fun provideRetrofit(
         okHttpClient: OkHttpClient,
-        @BaseUrl baseUrl: String
     ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(baseUrl)
+            .baseUrl(Constants.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

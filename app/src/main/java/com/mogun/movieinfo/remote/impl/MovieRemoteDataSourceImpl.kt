@@ -9,7 +9,7 @@ class MovieRemoteDataSourceImpl @Inject constructor(
     private val apiService: ApiService,
 ) : MovieRemoteDataSource {
     override suspend fun getPopluarMovies(): List<PopularMovieEntity> {
-        val response = apiService.getPopluarMovies(language = "ko")
+        val response = apiService.getPopluarMovies(language = "ko", page = 1)
 
         if (response.isSuccessful) {
             return response.body()?.results?.map {

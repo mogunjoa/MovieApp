@@ -1,6 +1,7 @@
 package com.mogun.movieinfo.presentation.ui.screen
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,25 +23,33 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil3.compose.rememberAsyncImagePainter
+import coil3.request.CachePolicy
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.mogun.movieinfo.R
+import com.mogun.movieinfo.presentation.model.PopularMovieUiState
 import com.mogun.movieinfo.presentation.ui.MovieApp
 import com.mogun.movieinfo.presentation.ui.common.ContentPaddings
 import com.mogun.movieinfo.presentation.ui.theme.Yellow
 import com.mogun.movieinfo.presentation.viewmodel.MovieViewModel
 import com.mogun.movieinfo.presentation.viewmodel.UiState
-import kotlinx.coroutines.flow.onEach
 
 enum class CardType {
     DEFAULT,
@@ -49,9 +58,16 @@ enum class CardType {
 
 @Composable
 fun HomeScreen(
-    viewModel: MovieViewModel = hiltViewModel()
+    viewModel: MovieViewModel = hiltViewModel(),
 ) {
-    viewModel.getPopularMovies()
+    val popularMovies = viewModel.popularMovies.collectAsState()
+
+    LaunchedEffect(popularMovies) {
+        if (popularMovies.value is UiState.Idle) {
+            viewModel.getPopularMovies()
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize() // 화면 전체를 채움
@@ -59,34 +75,27 @@ fun HomeScreen(
     ) {
         Spacer(modifier = Modifier.Companion.height(ContentPaddings.large.dp))
         Section(
-            title = "인기 영화 Top 10",
-            cardHeight = 200,
-            fontSize = 18,
-        ) {
-            RankingNumber(it + 1)
-        }
+            sectionTitle = "인기 영화 Top 10",
+            cardType = CardType.RANKING,
+            movieData = (popularMovies.value as? UiState.Success)?.data ?: emptyList(),
+        )
         Spacer(modifier = Modifier.Companion.height(ContentPaddings.large.dp))
         Section(
-            title = "현재 상영작",
-            cardHeight = 150,
-            fontSize = 14,
-        ) {
-            RankingNumber(it + 1)
-        }
+            sectionTitle = "현재 상영작",
+        )
         Spacer(modifier = Modifier.Companion.height(ContentPaddings.large.dp))
         Section(
-            title = "장르별 영화",
-            cardHeight = 150,
-            fontSize = 14,
+            sectionTitle = "장르별 영화",
         )
         Spacer(modifier = Modifier.Companion.height(ContentPaddings.large.dp))
     }
 }
 
 @Composable
-fun MovieSection(
+fun Section(
     sectionTitle: String,
-    compose: @Composable (index: Int) -> Unit
+    movieData: List<PopularMovieUiState> = emptyList(),
+    cardType: CardType = CardType.DEFAULT,
 ) {
     Column {
         Text(
@@ -95,28 +104,40 @@ fun MovieSection(
             modifier = Modifier.padding(start = ContentPaddings.medium.dp)
         )
 
-        LazyRow(
-            modifier = Modifier.fillMaxWidth().padding(top = ContentPaddings.medium.dp),
-            horizontalArrangement = Arrangement.spacedBy(ContentPaddings.medium.dp), // 아이템 간 간격
-            contentPadding = PaddingValues(horizontal = ContentPaddings.medium.dp) // 처음과 끝 여백
-        ) {
-            items(10) { item ->
-                compose(item)
+        val placeholderMovies = remember {
+            List(10) {
+                PopularMovieUiState(
+                    id = "",
+                    title = "Loading...",
+                    overview = "",
+                    posterPath = "",
+                    rating = 0f,
+                    rateCount = 0,
+                    releasedAt = ""
+                )
             }
         }
-    }
-}
 
-@Composable
-fun Section(
-    title: String,
-    cardHeight: Int,
-    fontSize: Int,
-    compose: @Composable (index: Int) -> Unit = {}
-) {
-    MovieSection(title) { index ->
-        MovieCard(cardHeight, fontSize) {
-            compose(index)
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = ContentPaddings.medium.dp),
+            horizontalArrangement = Arrangement.spacedBy(ContentPaddings.medium.dp),
+            contentPadding = PaddingValues(horizontal = ContentPaddings.medium.dp)
+        ) {
+            val moviesToShow = if (movieData.isEmpty()) placeholderMovies else movieData
+            val itemsCount = if (movieData.size > 10 && cardType == CardType.RANKING) 10 else movieData.size
+
+            items(itemsCount) { index ->
+                MovieCard(
+                    height = 200,
+                    contentFontSize = 18,
+                    data = moviesToShow[index],
+                ) {
+                    if (cardType == CardType.RANKING)
+                        RankingNumber(index + 1)
+                }
+            }
         }
     }
 }
@@ -125,7 +146,8 @@ fun Section(
 fun MovieCard(
     height: Int,
     contentFontSize: Int,
-    compose: @Composable () -> Unit = {}
+    data: PopularMovieUiState,
+    compose: @Composable () -> Unit = {},
 ) {
     Column {
         Box(
@@ -138,12 +160,26 @@ fun MovieCard(
                 Card(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_launcher_background),
-                        contentDescription = "Movie Poster",
-                        contentScale = ContentScale.Crop, // 이미지를 카드 크기에 맞게 조정
-                        modifier = Modifier.fillMaxSize()
-                    )
+                    if (data.posterPath.isEmpty())
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Gray),
+                        )
+                    else
+                        Image(
+                            painter = rememberAsyncImagePainter(
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(data.posterPath)
+                                    .crossfade(true) // 부드러운 전환 효과
+                                    .memoryCachePolicy(CachePolicy.ENABLED) // 메모리 캐싱
+                                    .diskCachePolicy(CachePolicy.DISABLED)  // 디스크 캐싱
+                                    .build()
+                            ),
+                            contentDescription = "Movie Poster",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
                 }
             }
 
@@ -152,7 +188,7 @@ fun MovieCard(
         }
         Spacer(modifier = Modifier.Companion.height(ContentPaddings.small.dp))
         Text(
-            "영화 제목",
+            data.title,
             fontSize = contentFontSize.sp,
             style = TextStyle(
                 shadow = Shadow(
@@ -173,7 +209,7 @@ fun MovieCard(
             )
             Spacer(modifier = Modifier.Companion.width(ContentPaddings.tiny.dp))
             Text(
-                "9.0 (2,303)",
+                "${data.rating} (${data.rateCount})",
                 fontSize = (contentFontSize / 1.2).sp,
                 style = TextStyle(
                     shadow = Shadow(
