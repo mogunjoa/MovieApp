@@ -17,4 +17,8 @@ class MovieRepositoryImpl @Inject constructor(
     override fun getNowPlayingMovies(): Flow<List<Movie>> = flow {
         emit(movieRemoteDataSource.getNowPlayingMovies().map { it.toDomain() })
     }
+
+    override fun getMoviesWithGenre(genreId: Int): Flow<List<Movie>> = flow {
+        emit(movieRemoteDataSource.getMoviesWithGenre(genreId).map { it.toDomain() })
+    }
 }

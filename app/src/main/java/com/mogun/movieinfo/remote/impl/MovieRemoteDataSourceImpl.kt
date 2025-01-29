@@ -24,4 +24,11 @@ class MovieRemoteDataSourceImpl @Inject constructor(
             mapToData = { body -> body.results.map { it.toData() } }
         )
     }
+
+    override suspend fun getMoviesWithGenre(genreId: Int): List<MovieEntity> {
+        return apiHelper.safeApiCall(
+            apiCall = { apiService.getMoviesWithGenre(language = "ko", page = 1, genreId = genreId) },
+            mapToData = { body -> body.results.map { it.toData() } }
+        )
+    }
 }

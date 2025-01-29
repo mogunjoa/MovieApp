@@ -7,4 +7,5 @@ interface MovieRepository {
 
     fun getPopularMovies(): Flow<List<Movie>>
     fun getNowPlayingMovies(): Flow<List<Movie>>
+    fun getMoviesWithGenre(genreId: Int): Flow<List<Movie>>
 }

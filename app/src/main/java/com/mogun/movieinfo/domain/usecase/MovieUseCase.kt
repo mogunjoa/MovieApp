@@ -8,4 +8,5 @@ class MovieUseCase @Inject constructor(
 ) {
     fun getPopularMovies() = movieRepository.getPopularMovies()
     fun getNowPlayingMovies() = movieRepository.getNowPlayingMovies()
+    fun getMoviesWithGenre(genreId: Int) = movieRepository.getMoviesWithGenre(genreId)
 }

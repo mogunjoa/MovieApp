@@ -35,6 +35,9 @@ class MovieViewModel @Inject constructor(
     private var _nowPlayingMovies = MutableStateFlow<UiState<List<MovieUiState>>>(UiState.Idle)
     val nowPlayingMovies = _nowPlayingMovies.asStateFlow()
 
+    private var _genreMovies = MutableStateFlow<UiState<List<MovieUiState>>>(UiState.Idle)
+    val genreMovies = _genreMovies.asStateFlow()
+
     private fun fetchMovies(
         flow: Flow<List<Movie>>,
         stateFlow: MutableStateFlow<UiState<List<MovieUiState>>>
@@ -63,6 +66,13 @@ class MovieViewModel @Inject constructor(
         fetchMovies(
             flow = movieUseCase.getNowPlayingMovies(),
             stateFlow = _nowPlayingMovies
+        )
+    }
+
+    fun getMoviesWithGenre(genreId: Int) {
+        fetchMovies(
+            flow = movieUseCase.getMoviesWithGenre(genreId),
+            stateFlow = _genreMovies
         )
     }
 }
