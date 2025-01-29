@@ -129,7 +129,7 @@ fun Section(
                     title = "Loading...",
                     overview = "",
                     posterPath = "",
-                    rating = 0f,
+                    rating = "0.0",
                     rateCount = 0,
                     releasedAt = ""
                 )

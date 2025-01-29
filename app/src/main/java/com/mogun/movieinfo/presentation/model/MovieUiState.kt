@@ -7,7 +7,7 @@ data class MovieUiState(
     val title: String,
     val overview: String,
     val posterPath: String,
-    val rating: Float,
+    val rating: String,
     val rateCount: Int,
     val releasedAt: String,
 )

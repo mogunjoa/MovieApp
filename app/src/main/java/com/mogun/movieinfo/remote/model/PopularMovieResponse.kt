@@ -24,13 +24,17 @@ data class PopularMovieResponse(
     val prefixPosterUrl: String
         get() = Constants.POSTER_IMAGE_PREFIX_URL + posterPath
 
+    val ratingToString: String
+        get() = String.format("%.1f", rating)
+
     fun toData(): MovieEntity {
+
         return MovieEntity(
             id = id.toString(),
             title = title,
             overview = overview,
             posterPath = prefixPosterUrl,
-            rating = rating,
+            rating = ratingToString,
             rateCount = rateCount,
             releasedAt = releasedAt.toString()
         )
