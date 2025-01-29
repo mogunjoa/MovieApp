@@ -5,7 +5,7 @@ import com.mogun.movieinfo.data.model.MovieEntity
 import com.mogun.movieinfo.remote.network.Constants
 import java.util.Date
 
-data class PopularMovieResponse(
+data class MovieResponse(
     @SerializedName("id")
     val id: Int,
     @SerializedName("title")
