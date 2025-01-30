@@ -2,6 +2,9 @@ package com.mogun.movieinfo.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.map
 import com.mogun.movieinfo.domain.model.Movie
 import com.mogun.movieinfo.domain.usecase.MovieUseCase
 import com.mogun.movieinfo.presentation.model.MovieUiState
@@ -12,10 +15,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.take
 import javax.inject.Inject
 
 sealed class UiState<out T> {
@@ -29,13 +30,13 @@ sealed class UiState<out T> {
 class MovieViewModel @Inject constructor(
     private val movieUseCase: MovieUseCase,
 ) : ViewModel() {
-    private var _popularMovies = MutableStateFlow<UiState<List<MovieUiState>>>(UiState.Idle)
+    private var _popularMovies = MutableStateFlow<PagingData<MovieUiState>>(PagingData.empty())
     val popularMovies = _popularMovies.asStateFlow()
 
-    private var _nowPlayingMovies = MutableStateFlow<UiState<List<MovieUiState>>>(UiState.Idle)
+    private var _nowPlayingMovies = MutableStateFlow<PagingData<MovieUiState>>(PagingData.empty())
     val nowPlayingMovies = _nowPlayingMovies.asStateFlow()
 
-    private var _genreMovies = MutableStateFlow<UiState<List<MovieUiState>>>(UiState.Idle)
+    private var _genreMovies = MutableStateFlow<PagingData<MovieUiState>>(PagingData.empty())
     val genreMovies = _genreMovies.asStateFlow()
 
     private fun fetchMovies(
@@ -56,23 +57,29 @@ class MovieViewModel @Inject constructor(
     }
 
     fun getPopularMovies() {
-        fetchMovies(
-            flow = movieUseCase.getPopularMovies(),
-            stateFlow = _popularMovies
-        )
+        movieUseCase.getPopularMovies()
+            .cachedIn(viewModelScope)
+            .onEach { movies ->
+                _popularMovies.value = movies.map { it.toUiState() }
+            }
+            .launchIn(viewModelScope)
     }
 
     fun getNowPlayingMovies() {
-        fetchMovies(
-            flow = movieUseCase.getNowPlayingMovies(),
-            stateFlow = _nowPlayingMovies
-        )
+        movieUseCase.getNowPlayingMovies()
+            .cachedIn(viewModelScope)
+            .onEach { movies ->
+                _nowPlayingMovies.value = movies.map { it.toUiState() }
+            }
+            .launchIn(viewModelScope)
     }
 
     fun getMoviesWithGenre(genreId: Int) {
-        fetchMovies(
-            flow = movieUseCase.getMoviesWithGenre(genreId),
-            stateFlow = _genreMovies
-        )
+        movieUseCase.getMoviesWithGenre(genreId)
+            .cachedIn(viewModelScope)
+            .onEach { movies ->
+                _genreMovies.value = movies.map { it.toUiState() }
+            }
+            .launchIn(viewModelScope)
     }
 }

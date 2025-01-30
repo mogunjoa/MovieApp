@@ -40,6 +40,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
@@ -62,8 +65,8 @@ enum class CardType {
 fun HomeScreen(
     viewModel: MovieViewModel = hiltViewModel(),
 ) {
-    val popularMovies = viewModel.popularMovies.collectAsState()
-    val nowPlayingMovies = viewModel.nowPlayingMovies.collectAsState()
+    val popularMovies = viewModel.popularMovies.collectAsLazyPagingItems()
+    val nowPlayingMovies = viewModel.nowPlayingMovies.collectAsLazyPagingItems()
 
     /**
      * popularMovies와 nowPlayingMovies가 초기 상태인 경우에만 API 호출
@@ -71,14 +74,10 @@ fun HomeScreen(
      */
     LaunchedEffect(Unit) {
         val popularMovieJob = async {
-            if (popularMovies.value is UiState.Idle) {
-                viewModel.getPopularMovies()
-            }
+            viewModel.getPopularMovies()
         }
         val nowPlayingMovieJob = async {
-            if (nowPlayingMovies.value is UiState.Idle) {
-                viewModel.getNowPlayingMovies()
-            }
+            viewModel.getNowPlayingMovies()
         }
 
         popularMovieJob.await()
@@ -94,16 +93,17 @@ fun HomeScreen(
         Section(
             sectionTitle = "인기 영화 Top 10",
             cardType = CardType.RANKING,
-            movieData = (popularMovies.value as? UiState.Success)?.data?.take(10) ?: emptyList(),
+            movieData = if (popularMovies.loadState.refresh is LoadState.NotLoading) popularMovies else null
         )
         Spacer(modifier = Modifier.Companion.height(ContentPaddings.large.dp))
         Section(
             sectionTitle = "현재 상영작",
-            movieData = (nowPlayingMovies.value as? UiState.Success)?.data ?: emptyList(),
+            movieData = if (nowPlayingMovies.loadState.refresh is LoadState.NotLoading) nowPlayingMovies else null
         )
         Spacer(modifier = Modifier.Companion.height(ContentPaddings.large.dp))
         Section(
             sectionTitle = "장르별 영화",
+            movieData = null
         )
         Spacer(modifier = Modifier.Companion.height(ContentPaddings.large.dp))
     }
@@ -112,7 +112,7 @@ fun HomeScreen(
 @Composable
 fun Section(
     sectionTitle: String,
-    movieData: List<MovieUiState> = emptyList(),
+    movieData: LazyPagingItems<MovieUiState>?,
     cardType: CardType = CardType.DEFAULT,
 ) {
     Column {
@@ -143,13 +143,13 @@ fun Section(
             horizontalArrangement = Arrangement.spacedBy(ContentPaddings.medium.dp),
             contentPadding = PaddingValues(horizontal = ContentPaddings.medium.dp)
         ) {
-            val moviesToShow = if (movieData.isEmpty()) placeholderMovies else movieData
+            val moviesToShow = if (movieData == null || movieData.itemCount == 0) placeholderMovies else movieData
 
-            items(movieData.size) { index ->
+            items(movieData?.itemCount ?: 10) { index ->
                 MovieCard(
                     height = 200,
                     contentFontSize = 18,
-                    data = moviesToShow[index],
+                    data = movieData?.get(index) ?: placeholderMovies[index],
                 ) {
                     if (cardType == CardType.RANKING)
                         RankingNumber(index + 1)
